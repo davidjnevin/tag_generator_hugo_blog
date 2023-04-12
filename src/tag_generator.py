@@ -85,6 +85,7 @@ def get_tags_for_directory(markdown_directory):
     tags_dict = defaultdict(list)
     # Iterate through the Markdown files and generate tags
     for file_name in os.listdir(markdown_directory):
+        # "Python conditions added to limit responses in early development."
         if file_name.endswith(".md") and "python" in file_name:
             file_path = os.path.join(markdown_directory, file_name)
             with open(file_path, "r", encoding="utf-8") as file:
