@@ -9,8 +9,7 @@ from nltk.tokenize import word_tokenize
 from nltk.util import ngrams
 
 nltk.download("punkt")
-nltk.download("averaged_preceptron_tagger")
-nltk.download("stopwords")
+nltk.download("averaged_perceptron_tagger")
 
 
 def remove_markdown_headers(text):
@@ -40,7 +39,7 @@ def generate_tags(text, num_tags=5, custom_stopwords=None, bigram_limit=1):
 
     # Preprocess text
     # text = text.lower()
-    text = re.sub(r"\W+", " ", text)
+    # text = re.sub(r"\W+", " ", text)
 
     # Tokenize and remove stopwords
     tokens = word_tokenize(text)
@@ -50,26 +49,25 @@ def generate_tags(text, num_tags=5, custom_stopwords=None, bigram_limit=1):
     if custom_stopwords:
         stop_words.update(custom_stopwords)
 
-    words = [token for token in tokens if token.isalpha and token not in stop_words]
+    # Remove stop words
+    clean_tokens = [token for token in tokens if token not in stop_words]
 
-    # Calculate word frequencies
-    unigram_freq = nltk.FreqDist(words)
+    # Tag the tokens with (parts of speech)
+    tagged_tokens = nltk.pos_tag(clean_tokens)
 
-    # Find bigrams
-    bigram_measures = nltk.collocations.BigramAssocMeasures()
-    finder = nltk.BigramCollocationFinder.from_words(words)
-    finder.apply_freq_filter(2)
-    finder.apply_word_filter(lambda w: len(w) < 3)
-    bigram_freq = finder.score_ngrams(bigram_measures.raw_freq)
+    tags = list()
 
-    # Select top N unigrams
-    top_unigrams = [word for word, _ in unigram_freq.most_common(num_tags)]
+    # Add Verbs
+    # tags += [tag[0] for tag in tagged_tokens if tag[1].startswith("V")]
 
-    # Select top N bigrams (limited by bigram_limit)
-    top_bigrams = ['_'.join(words) for words, _ in bigram_freq[:bigram_limit]]
+    # Add Nouns
+    tags += [tag[0] for tag in tagged_tokens if tag[1].startswith("N")]
 
-    # Combine unigrams and bigrams
-    tags = top_unigrams + top_bigrams
+    # Add Adjectives
+    # tags += [tag[0] for tag in tagged_tokens if tag[1].startswith("J")]
+
+
+
     tags = tags[:num_tags]
 
     return tags
