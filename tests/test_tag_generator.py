@@ -1,14 +1,10 @@
-import os
-import tempfile
-from collections import defaultdict
-
 import pytest
-from src.tag_generator import (generate_tags, get_tags_for_directory,
+from src.tag_generator import (preprocess_text, extract_top_tags,
                                remove_code_blocks, remove_markdown_headers)
 
 
 def test_remove_markdown_headers():
-    sample_text = '''
+    sample_text = """
     This is a sample text.
 
     ---
@@ -19,17 +15,14 @@ def test_remove_markdown_headers():
     ---
     Another header to remove.
     ---
-    '''
+    """
 
     removed_texts = [
         "This is a header that should be removed.",
-        "Another header to remove."
+        "Another header to remove.",
     ]
 
-    expected_texts = [
-        "This is a sample text.",
-        "This is another sample text."
-    ]
+    expected_texts = ["This is a sample text.", "This is another sample text."]
 
     cleaned_text = remove_markdown_headers(sample_text)
 
@@ -50,7 +43,7 @@ def test_remove_markdown_headers():
 
 
 def test_remove_code_blocks():
-    sample_text = '''
+    sample_text = """
     This is a sample text.
 
     ```
@@ -61,15 +54,12 @@ def test_remove_code_blocks():
     ```
     Another code block to remove.
     ```
-    '''
+    """
     removed_texts = [
         "This is a code block that should be removed.",
-        "Another code block to remove."
+        "Another code block to remove.",
     ]
-    expected_texts = [
-        "This is a sample text.",
-        "This is another sample text."
-    ]
+    expected_texts = ["This is a sample text.", "This is another sample text."]
 
     cleaned_text = remove_code_blocks(sample_text)
 
@@ -89,38 +79,65 @@ def test_remove_code_blocks():
     assert all_expected_present
 
 
-def test_generate_tags():
+def test_preprocess_text_without_stop_words():
     sample_text = """
     This is a sample text for testing the tag generator.
     The tag generator should return the most relevant tags for this text.
     """
-    # expected_tags = ["tag", "generator", "text", "sample", "testing"]
-    generated_tags = generate_tags(sample_text, num_tags=5)
-    assert len(generated_tags) == 5
-    # breakpoint()
+    test_stop_words = []
+    generated_tags = preprocess_text(sample_text, custom_stopwords=test_stop_words)
+
+    expected_tags = ['sample', 'text', 'testing', 'tag', 'generator', 'tag', 'generator', 'return', 'relevant', 'tag', 'text']
+    assert len(generated_tags) == 11
+    assert "sample" in generated_tags
+    assert "text" in generated_tags
+    assert "testing" in generated_tags
     assert "tag" in generated_tags
     assert "generator" in generated_tags
+    assert "return" in generated_tags
+    assert "relevant" in generated_tags
+
+
+def test_extract_top_tags():
+    word_freq = {}
+
+def test_preprocess_text_with_stop_words():
+    sample_text = """
+    This is a sample text for testing the tag generator.
+    The tag generator should return the most relevant tags for this text.
+    """
+    test_stop_words = {"tag", "sample"}
+    generated_tags = preprocess_text(sample_text, custom_stopwords=test_stop_words)
+    breakpoint()
+
+    expected_tags = ['text', 'testing', 'generator', 'generator', 'return', 'relevant',  'text']
+    assert len(generated_tags) == 7
+    assert "sample" not in generated_tags
+    assert "tag" not in generated_tags
     assert "text" in generated_tags
-    assert "sample" in generated_tags
-    assert "This" in generated_tags
+    assert "testing" in generated_tags
+    assert "generator" in generated_tags
+    assert "return" in generated_tags
+    assert "relevant" in generated_tags
 
 
 def test_get_tags_for_directory(tmp_path):
     # Create a temporary directory with sample Markdown files
-        sample_files = {
-            "python_file1.md": "This is a sample text in file1.",
-            "python_file2.md": "This is another sample text in file2.",
-        }
-        for file_name, content in sample_files.items():
-            file_path = tmp_path / file_name
-            with open(file_path, "w") as file:
-                file.write(content)
+    sample_files = {
+        "file1.md": "This is a sample text in file1.",
+        "file2.md": "This is another sample text in file2.",
+    }
+    for file_name, content in sample_files.items():
+        file_path = tmp_path / file_name
+        with open(file_path, "w") as file:
+            file.write(content)
 
-        # Test get_tags_for_directory function
-        tags_dict = get_tags_for_directory(tmp_path)
-        assert len(tags_dict) == 2
-        assert tags_dict["python_file1.md"] != []
-        assert tags_dict["python_file2.md"] != []
+    # Test get_tags_for_directory function
+    tags_dict = dict()
+    # get_tags_for_directory(tmp_path)
+    assert len(tags_dict) == 2
+    assert tags_dict["file1.md"] != []
+    assert tags_dict["file2.md"] != []
 
 
 if __name__ == "__main__":
