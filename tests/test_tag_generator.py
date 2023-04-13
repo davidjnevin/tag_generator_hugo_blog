@@ -1,6 +1,6 @@
 from nltk import FreqDist
 import pytest
-from src.tag_generator import (calculate_word_freq, extract_words_from_directory, preprocess_text, extract_top_tags,
+from src.tag_generator import (calculate_word_freq, extract_words_from_directory, preprocess_text, extract_top_tags, print_tags_per_post,
                                remove_code_blocks, remove_markdown_headers)
 from heapq import nlargest
 
@@ -116,7 +116,6 @@ def test_preprocess_text_with_stop_words():
 
     generated_tags = preprocess_text(sample_text, custom_stopwords=test_stop_words)
     expected_tags = ['text', 'testing', 'generator', 'generator', 'return', 'relevant',  'text']
-
     assert len(generated_tags) == len(expected_tags)
     assert "sample" not in generated_tags
     assert "tag" not in generated_tags
@@ -145,6 +144,15 @@ def test_extract_content_from_directory(tmp_path):
     assert tags_dict["file1.md"] != []
     assert tags_dict["file2.md"] != []
 
+
+def test_print_tags_per_post(capsys):
+    tags_dict = {
+        "filename.md": ["tag", "another", "and"]
+    }
+    print_tags_per_post(tags_dict)
+    captured = capsys.readouterr()
+
+    assert captured.out == "filename.md: tag, another, and\n"
 
 if __name__ == "__main__":
     pytest.main()
