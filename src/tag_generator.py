@@ -11,7 +11,7 @@ from nltk.stem import WordNetLemmatizer
 from nltk.corpus import wordnet
 from heapq import nlargest
 
-from src.tags_db import get_stop_words
+from tags_db import get_stop_words
 
 nltk.download("punkt")
 nltk.download("stopwords")
