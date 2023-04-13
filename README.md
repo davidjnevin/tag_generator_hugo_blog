@@ -10,4 +10,4 @@ The script uses the [NLTK](https://www.nltk.org/) python library to analyze and 
 
 This package will edit the markdown files to replace the existing tags with the newly generated list.
 
-
+### Note: Working out some import issues, to run the program and run the tests successfully.
