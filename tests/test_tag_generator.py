@@ -1,6 +1,8 @@
+from nltk import FreqDist
 import pytest
-from src.tag_generator import (preprocess_text, extract_top_tags,
+from src.tag_generator import (calculate_word_freq, extract_words_from_directory, preprocess_text, extract_top_tags,
                                remove_code_blocks, remove_markdown_headers)
+from heapq import nlargest
 
 
 def test_remove_markdown_headers():
@@ -99,7 +101,11 @@ def test_preprocess_text_without_stop_words():
 
 
 def test_extract_top_tags():
-    word_freq = {}
+    words = ["sample", "text", "testing", "tag", "generator", "tag", "generator", "return", "relevant", "tag", "text"]
+    word_freq = calculate_word_freq(words)
+    top_tags = extract_top_tags(n_top=5, word_freq=word_freq)
+    assert top_tags == ['tag', 'text', 'generator', 'sample', 'testing']
+
 
 def test_preprocess_text_with_stop_words():
     sample_text = """
@@ -107,13 +113,14 @@ def test_preprocess_text_with_stop_words():
     The tag generator should return the most relevant tags for this text.
     """
     test_stop_words = {"tag", "sample"}
-    generated_tags = preprocess_text(sample_text, custom_stopwords=test_stop_words)
-    breakpoint()
 
+    generated_tags = preprocess_text(sample_text, custom_stopwords=test_stop_words)
     expected_tags = ['text', 'testing', 'generator', 'generator', 'return', 'relevant',  'text']
-    assert len(generated_tags) == 7
+
+    assert len(generated_tags) == len(expected_tags)
     assert "sample" not in generated_tags
     assert "tag" not in generated_tags
+
     assert "text" in generated_tags
     assert "testing" in generated_tags
     assert "generator" in generated_tags
@@ -121,7 +128,7 @@ def test_preprocess_text_with_stop_words():
     assert "relevant" in generated_tags
 
 
-def test_get_tags_for_directory(tmp_path):
+def test_extract_content_from_directory(tmp_path):
     # Create a temporary directory with sample Markdown files
     sample_files = {
         "file1.md": "This is a sample text in file1.",
@@ -133,8 +140,7 @@ def test_get_tags_for_directory(tmp_path):
             file.write(content)
 
     # Test get_tags_for_directory function
-    tags_dict = dict()
-    # get_tags_for_directory(tmp_path)
+    tags_dict = extract_words_from_directory(tmp_path)
     assert len(tags_dict) == 2
     assert tags_dict["file1.md"] != []
     assert tags_dict["file2.md"] != []
