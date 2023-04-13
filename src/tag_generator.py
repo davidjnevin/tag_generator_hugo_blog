@@ -11,6 +11,8 @@ from nltk.stem import WordNetLemmatizer
 from nltk.corpus import wordnet
 from heapq import nlargest
 
+from src.tags_db import get_stop_words
+
 nltk.download("punkt")
 nltk.download("stopwords")
 nltk.download('wordnet')
@@ -45,6 +47,9 @@ def preprocess_text(text, custom_stopwords={}):
 
     # Add custom stopwords if provided
     stop_words = set(stopwords.words("english"))
+    existing_custom_stopwords = set(get_stop_words())
+    if existing_custom_stopwords:
+        stop_words.update(existing_custom_stopwords)
     if custom_stopwords:
         stop_words.update(custom_stopwords)
 
@@ -87,11 +92,7 @@ def print_tags_per_post(tags_dict):
         print(f'{file_name}: {", ".join(tags)}')
 
 
-def start_tag_generator():
+if __name__ == "__main__":  # pragma: no cover
     MARKDOWN_DIR = "/Users/Communitymanager-work/Google Drive/DJNWebsite/djnProfessional/djnevinProfessional/content/code"
     tags = extract_words_from_directory(MARKDOWN_DIR)
     print_tags_per_post(tags)
-
-
-if __name__ == "__main__":
-    start_tag_generator()
