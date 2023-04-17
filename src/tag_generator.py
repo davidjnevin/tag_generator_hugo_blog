@@ -1,34 +1,31 @@
 import os
 import re
 from collections import defaultdict
+from heapq import nlargest
 
 import nltk
 from nltk.corpus import stopwords
 from nltk.probability import FreqDist
-from nltk.tokenize import word_tokenize, sent_tokenize
-from nltk.util import ngrams
 from nltk.stem import WordNetLemmatizer
-from nltk.corpus import wordnet
-from heapq import nlargest
-
-from tags_db import get_stop_words
+from nltk.tokenize import word_tokenize
+from src.tags_db import get_stop_words
 
 nltk.download("punkt")
 nltk.download("stopwords")
-nltk.download('wordnet')
+nltk.download("wordnet")
 
 
 def remove_markdown_headers(text):
     # Remove lines between --- (Markdown headers)
-    header_pattern = re.compile(r'---[\s\S]*?---')
-    text = re.sub(header_pattern, '', text)
+    header_pattern = re.compile(r"---[\s\S]*?---")
+    text = re.sub(header_pattern, "", text)
     return text
 
 
 def remove_code_blocks(text):
     # Remove lines between ``` (code blocks)
-    code_block_pattern = re.compile(r'```[\s\S]*?```')
-    text = re.sub(code_block_pattern, '', text)
+    code_block_pattern = re.compile(r"```[\s\S]*?```")
+    text = re.sub(code_block_pattern, "", text)
     return text
 
 
@@ -93,6 +90,8 @@ def print_tags_per_post(tags_dict):
 
 
 if __name__ == "__main__":  # pragma: no cover
-    MARKDOWN_DIR = "/Users/Communitymanager-work/Google Drive/DJNWebsite/djnProfessional/djnevinProfessional/content/code"
+    MARKDOWN_DIR = (
+        "/Users/Communitymanager-work/Google Drive/DJNWebsite/djnProfessional/djnevinProfessional/content/code"
+    )
     tags = extract_words_from_directory(MARKDOWN_DIR)
     print_tags_per_post(tags)
